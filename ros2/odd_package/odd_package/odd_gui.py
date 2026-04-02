@@ -332,7 +332,6 @@ def main(args=None):
         while app.running:
             app.update()
             rclpy.spin_once(app.node, timeout_sec=0.01)
-            sys.stdout.flush()
     except KeyboardInterrupt:
         pass
     finally:
