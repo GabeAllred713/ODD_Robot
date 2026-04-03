@@ -63,7 +63,10 @@ class ODDRobot:
     def close(self) -> None:
         self.motor_commands = [0.0, 0.0]
         if self.serial and self.serial.is_open:
-            self.communicate()
+            try:
+                self.communicate()
+            except ODDException:
+                pass
             self.serial.close()
 
 
