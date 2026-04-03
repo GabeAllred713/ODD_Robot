@@ -2,7 +2,7 @@ import rclpy
 from rclpy.logging import LoggingSeverity
 from rclpy.node import Node
 from odd_package_interfaces.msg import RPM, EncoderTicks, BumpSensors, Voltage, PID, Temperature
-from odd_python.control import ODDRobot
+from odd_python.control import ODDRobot, ODDException
 from geometry_msgs.msg import Vector3
 from std_srvs.srv import Trigger
 from serial import SerialException
@@ -12,6 +12,8 @@ class ODDNode(Node):
         super().__init__('odd_node')
         self.running = True
         self.robot = ODDRobot(self.get_logger())
+        self.try_connect()
+        self.try_connect_timer = self.create_timer(5, self.try_connect)
         self.communicate_timer = self.create_timer(1/60, self.communicate)
         self.command_subscription = self.create_subscription(
             RPM,
@@ -43,7 +45,17 @@ class ODDNode(Node):
         self.temperature_publisher = self.create_publisher(Temperature, 'imu_temperature', 10)
         
         self.shutdown_service = self.create_service(Trigger, 'shutdown_control', self.shutdown_request)
-        
+
+
+    def try_connect(self):
+        if self.robot.is_connected():
+            return
+
+        try:
+            self.robot.connect()
+        except ODDException as e:
+            self.get_logger().error(f"{e}")
+
     
     def shutdown_request(self, request, response):
         self.get_logger().info("Shutting down.")
@@ -69,7 +81,15 @@ class ODDNode(Node):
     
     
     def communicate(self):
-        self.robot.communicate()
+        if not self.robot.is_connected():
+            # Do something.
+            return
+
+        try:
+            self.robot.communicate()
+        except ODDException as e:
+            self.get_logger().error(f"{e}")
+            return
 	    
         rpm_msg = RPM()
         rpm_msg.theta_dot_left = self.robot.rpm[0]

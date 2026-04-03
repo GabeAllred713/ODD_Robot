@@ -24,16 +24,16 @@ class MotorFrame(ctk.CTkFrame):
         self.motor_label_right = ctk.CTkLabel(self, text="RIGHT", font=font, text_color="blue")
         self.motor_label_right.grid(row=1, column=2, padx=0, pady=0)
         
-        self.rpm_left_label = ctk.CTkLabel(self, text="LEFT rpm", font=font, text_color="red")
+        self.rpm_left_label = ctk.CTkLabel(self, text="NO DATA rpm", font=font, text_color="red")
         self.rpm_left_label.grid(row=2, column=0, padx=0, pady=0)
         
-        self.rpm_right_label = ctk.CTkLabel(self, text="RIGHT rpm", font=font, text_color="blue")
+        self.rpm_right_label = ctk.CTkLabel(self, text="NO DATA rpm", font=font, text_color="blue")
         self.rpm_right_label.grid(row=2, column=2, padx=0, pady=0)
         
-        self.ticks_left_label = ctk.CTkLabel(self, text="LEFT ticks", font=font, text_color="red")
+        self.ticks_left_label = ctk.CTkLabel(self, text="NO DATA ticks", font=font, text_color="red")
         self.ticks_left_label.grid(row=3, column=0, padx=0, pady=0)
         
-        self.ticks_right_label = ctk.CTkLabel(self, text="RIGHT ticks", font=font, text_color="blue")
+        self.ticks_right_label = ctk.CTkLabel(self, text="NO DATA ticks", font=font, text_color="blue")
         self.ticks_right_label.grid(row=3, column=2, padx=0, pady=0)
     
     
@@ -63,25 +63,25 @@ class IMUFrame(ctk.CTkFrame):
         self.z_label = ctk.CTkLabel(self, text="Z", font=font, text_color="blue")
         self.z_label.grid(row=1, column=2, padx=0, pady=0)
         
-        self.x_accel_label = ctk.CTkLabel(self, text="X", font=font, text_color="red")
+        self.x_accel_label = ctk.CTkLabel(self, text="NO DATA", font=font, text_color="red")
         self.x_accel_label.grid(row=3, column=0, padx=5, pady=0)
         
-        self.y_accel_label = ctk.CTkLabel(self, text="Y", font=font, text_color="green")
+        self.y_accel_label = ctk.CTkLabel(self, text="NO DATA", font=font, text_color="green")
         self.y_accel_label.grid(row=3, column=1, padx=5, pady=0)
         
-        self.z_accel_label = ctk.CTkLabel(self, text="Z", font=font, text_color="blue")
+        self.z_accel_label = ctk.CTkLabel(self, text="NO DATA", font=font, text_color="blue")
         self.z_accel_label.grid(row=3, column=2, padx=5, pady=0)
         
-        self.x_rot_label = ctk.CTkLabel(self, text="X", font=font, text_color="red")
+        self.x_rot_label = ctk.CTkLabel(self, text="NO DATA", font=font, text_color="red")
         self.x_rot_label.grid(row=2, column=0, padx=0, pady=0)
         
-        self.y_rot_label = ctk.CTkLabel(self, text="Y", font=font, text_color="green")
+        self.y_rot_label = ctk.CTkLabel(self, text="NO DATA", font=font, text_color="green")
         self.y_rot_label.grid(row=2, column=1, padx=0, pady=0)
         
-        self.z_rot_label = ctk.CTkLabel(self, text="Z", font=font, text_color="blue")
+        self.z_rot_label = ctk.CTkLabel(self, text="NO DATA", font=font, text_color="blue")
         self.z_rot_label.grid(row=2, column=2, padx=0, pady=0)
         
-        self.temperature_label = ctk.CTkLabel(self, text="77", font=font)
+        self.temperature_label = ctk.CTkLabel(self, text="NO DATA", font=font)
         self.temperature_label.grid(row=4, column=1, padx=0, pady=0)
     
     
@@ -167,11 +167,11 @@ class ODDGUI(ctk.CTk):
         #self.bump_label = ctk.CTkLabel(self, text="bump", font=self.mono_font)
         #self.bump_label.grid(row=3, column=0, padx=10, pady=10)
         
-        self.battery_label = ctk.CTkLabel(self, text="batt", font=self.mono_font)
+        self.battery_label = ctk.CTkLabel(self, text="VOLTAGE\nNO DATA", font=self.mono_font)
         self.battery_label.grid(row=4, column=0, padx=10, pady=10)
         
-        self.temperature_label = ctk.CTkLabel(self, text="temp", font=self.mono_font)
-        self.temperature_label.grid(row=5, column=0, padx=10, pady=10)
+        #self.temperature_label = ctk.CTkLabel(self, text="temp", font=self.mono_font)
+        #self.temperature_label.grid(row=5, column=0, padx=10, pady=10)
         
         self.wasd_enabled = ctk.BooleanVar(self)
         self.wasd_switch = ctk.CTkCheckBox(self, text="WASD Control", command=self.wasd_mode_updated, variable=self.wasd_enabled)

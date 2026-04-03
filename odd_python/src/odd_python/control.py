@@ -1,20 +1,24 @@
 from typing import Tuple, List
-from serial import Serial
+from serial import Serial, SerialException
 import subprocess
 import logging
+
+
+class ODDException(SerialException):
+    pass
+
+
+class MalformedData(ODDException):
+    pass
+
 
 class ODDRobot:
     def __init__(self, logger=logging.getLogger(__name__)) -> None:
         self.logger = logger
-        self._init_variables()
-        self.connect()
-    
-    
-    def _init_variables(self) -> None:
-        self.serial = None
+        self.serial: Serial = None
         self.motor_commands: List[float] = [0.0, 0.0]  # L, R (rpm)
-        self.motor_left_pid: List[float] = [0.7, 0.02, 0.02] # L (P I D)
-        self.motor_right_pid: List[float] = [0.4, 0.01, 0.02] # R (P I D)
+        self.motor_left_pid: List[float] = [0.7, 0.02, 0.02]  # L (P I D)
+        self.motor_right_pid: List[float] = [0.4, 0.01, 0.02]  # R (P I D)
         self.encoders: List[int] = [0, 0]  # L, R (counts)
         self.rpm: List[float] = [0.0, 0.0]  # L, R (rpm)
         self.orientation: List[float] = [0.0, 0.0, 0.0]  # X Y Z (deg)
@@ -27,34 +31,42 @@ class ODDRobot:
     def connect(self) -> None:
         port = "/dev/ttyACM0"
         grep = subprocess.run("udevadm info -q property /dev/ttyACM0 | grep 'ID_MODEL_ID='", shell=True, capture_output=True, text=True)
+        if grep.returncode != 0:
+            raise ODDException(f"No ODD Arduino found at {port}")
+
         model_id_split = grep.stdout.strip().split("=")
         if len(model_id_split) != 2:
-            return
+            raise ODDException(f"udevadm or grep did something weird: {grep.stdout}")
         
-        if model_id_split[1] == "ff48":
-            port = "/dev/ttyACM1"
+        if model_id_split[1] == "ff48":  # This means ARM is at /ttyACM0
+            port = "/dev/ttyACM1"  # So ODD should be here.
         
         self.close()
-        self.serial: Serial = Serial(port, 115200, timeout=0.1)
-        if self.serial.is_open:
-            self.logger.info("Serial opened!")
+        try:
+            self.serial: Serial = Serial(port, 115200, timeout=0.1)
+        except SerialException:
+            raise ODDException(f"Could not open ODD Arduino serial connection at {port}")
+        else:
+            self.logger.info(f"ODD Arduino serial opened at {port}")
             self.serial.reset_input_buffer()
             self.serial.reset_output_buffer()
-        else:
-            self.logger.error("Serial couldn't open!")
-    
-    
+
+
     def __del__(self) -> None:
         self.close()
 
 
+    def is_connected(self):
+        return self.serial is not None and self.serial.is_open
+
+
     def close(self) -> None:
         self.motor_commands = [0.0, 0.0]
-        self.communicate()
         if self.serial and self.serial.is_open:
+            self.communicate()
             self.serial.close()
-    
-    
+
+
     def _read_msg_line(self, line: str) -> None:
         self.logger.info(line)
     
@@ -67,8 +79,7 @@ class ODDRobot:
         str_data: List[str] = line.split(",")
         
         if len(str_data) != 16:
-            self.logger.error(f"Data had {len(str_data)} entries! It should have 16!")
-            return
+            raise MalformedData(f"Data line from ODD Arduino had {len(str_data)} entries! It should have 16!")
         else:
             self.logger.debug(line)
         
@@ -89,21 +100,29 @@ class ODDRobot:
             self.bump_sensors[3] = str_data[13] == "1"
             self.battery_voltage = float(str_data[14])
             self.temperature = int(str_data[15])
-        except ValueError as e:
-            self.logger.info(f"Could not read '{line}'")
+        except ValueError:
+            raise MalformedData(f"Data line from ODD Arduino could not be read: '{line}'")
         
     
     def communicate(self) -> None:
-        if not self.serial or not self.serial.is_open:
-            return
-        
-        data_line: str = self.serial.readline().decode("ascii")
-        if len(data_line) > 0:
-            self._read_data_line(data_line)
-        else:
-            self.logger.error("No serial data from the Arduino.")
+        if self.serial is None:
+            raise ODDException("ODD Robot serial connection was not opened. Did you call connect()?")
+        elif not self.serial.is_open:
+            raise ODDException("ODD Robot serial connection has been closed.")
+
         send = f"{self.motor_commands[0]},{self.motor_commands[1]},"
         send += ",".join(f"{x}" for x in (self.motor_left_pid + self.motor_right_pid))
         send += "\n"
         self.logger.debug(send)
-        self.serial.write(send.encode("ascii"))
+
+        try:
+            self.serial.write(send.encode("ascii"))
+            data_line = self.serial.readline().decode("ascii")
+        except SerialException:
+            self.serial.close()
+            raise ODDException("Serial I/O error. Was ODD Arduino disconnected?")
+
+        if len(data_line) > 0:
+            self._read_data_line(data_line)
+        else:
+            raise ODDException("No serial data from ODD Arduino.")
