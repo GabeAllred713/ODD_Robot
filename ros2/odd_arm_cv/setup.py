@@ -26,5 +26,8 @@ setup(
         ],
     },
     entry_points={
+        'console_scripts': [
+            'gui = odd_arm_cv.odd_arm_gui:main',
+        ],
     },
 )
