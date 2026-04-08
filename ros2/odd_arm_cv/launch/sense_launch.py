@@ -31,6 +31,10 @@ def generate_launch_description():
             namespace='/odd_arm_cv',
             arguments=['/odd_arm_cv/selected_depth_image', '/odd/D435/depth/image_rect_raw', '/arm/D405/depth/image_rect_raw']
         ),
+        Node(
+            package='odd_arm_cv',
+            executable='gui'
+        ),
         #ExecuteProcess(
         #    cmd=['jetson-containers', 'run', '--ipc=host', '--pid=host', 'odd_arm/nanoowl:1.0.0 bash /opt/odd_arm_cv/nanoowl.sh'],
         #    output='screen'
