@@ -1,7 +1,8 @@
 import rclpy
 import customtkinter as ctk
 import PIL
-from cv_bridge import CvBridge
+from rosbags.image import message_to_cvimage
+# from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from topic_tools_interfaces.srv import MuxSelect
 
@@ -12,7 +13,7 @@ class ComputerVisionGUI(ctk.CTk):
         self.node = node
         self.geometry("600x600")
         self.title("ODD ARM COMPUTER VISION")
-        self.cv_bridge = CvBridge()
+        # self.cv_bridge = CvBridge()
 
         self.color_image = ctk.CTkImage(size=(400, 400))
         self.color_image_label = ctk.CTkLabel(self, image=self.color_image, text="color")
@@ -36,11 +37,13 @@ class ComputerVisionGUI(ctk.CTk):
         self.depth_mux_client = self.node.create_client(MuxSelect, '/odd_arm_cv/depth_image_mux/select')
 
     def update_color_image(self, msg):
-        opencv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
+        opencv_image = message_to_cvimage(msg, 'rgb8')
+        # opencv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
         self.color_image.configure(light_image=PIL.Image.fromarray(opencv_image))
 
     def update_depth_image(self, msg):
-        opencv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
+        opencv_image = message_to_cvimage(msg, 'rgb8')
+        # opencv_image = self.cv_bridge.imgmsg_to_cv2(msg, desired_encoding='rgb8')
         self.depth_image.configure(light_image=PIL.PImage.fromarray(opencv_image))
 
     def camera_switched(self):
