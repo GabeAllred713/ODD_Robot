@@ -24,6 +24,13 @@ def generate_launch_description():
             namespace='/nanoowl',
             arguments=['/nanoowl/input_image', '/odd/D435/color/image_rect_raw', '/arm/D405/color/image_rect_raw']
         ),
+        Node(
+            package='topic_tools',
+            executable='mux',
+            name='depth_image_mux',
+            namespace='/odd_arm_cv',
+            arguments=['/odd_arm_cv/selected_depth_image', '/odd/D435/depth/image_rect_raw', '/arm/D405/depth/image_rect_raw']
+        ),
         #ExecuteProcess(
         #    cmd=['jetson-containers', 'run', '--ipc=host', '--pid=host', 'odd_arm/nanoowl:1.0.0 bash /opt/odd_arm_cv/nanoowl.sh'],
         #    output='screen'
