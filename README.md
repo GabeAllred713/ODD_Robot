@@ -7,4 +7,4 @@ The Jetson is programed by ROS with python
 
 The Arduino communicates to the jetson, using USB 
 
-
+ARM also communicates to the Jetson via USB
