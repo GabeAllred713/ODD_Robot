@@ -128,4 +128,4 @@ class ODDRobot:
         if len(data_line) > 0:
             self._read_data_line(data_line)
         else:
-            raise ODDException("No serial data from ODD Arduino.")
+            raise ODDException(f"No serial data from ODD Arduino at {self.serial.port}.")

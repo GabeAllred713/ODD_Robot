@@ -72,10 +72,10 @@ class NumberEntry(ctk.CTkFrame):
 
         self.entry = ctk.CTkEntry(self,
                                   font=font,
-                                  text=str(self.number),
                                   validate="key",
                                   validatecommand=self.validate_wrapped
                                   )
+        self.entry.insert(0, str(self.number))
         self.entry.grid(row=0, column=1, padx=0, pady=0)
 
     def validate(self, new_string):
@@ -191,7 +191,7 @@ class ODDGUI(ctk.CTk):
     def __init__(self, node):
         super().__init__()
         self.node = node
-        self.geometry("600x400")
+        self.geometry("450x700")
         self.title("ODD Control GUI")
         self.bind("<KeyPress>", self.on_keypress)
         self.bind("<KeyRelease>", self.on_key_release)
