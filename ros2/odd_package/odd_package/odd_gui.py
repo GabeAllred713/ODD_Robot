@@ -258,7 +258,7 @@ class ODDGUI(ctk.CTk):
         self.shutdown_control_client = self.node.create_client(Trigger, 'shutdown_control')
 
         self.velocity = [0.0, 0.0]
-        self.vel_clamp = 80.0
+        self.vel_clamp = 82.0
         self.request_velocity = [0.0, 0.0]
         #self.accel_clamp = 30.0
         self.accel = 300.0
