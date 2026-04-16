@@ -97,7 +97,7 @@ class ComputerVisionGUI(ctk.CTk):
             arm_color.topic="/arm/D405/color/image_rect_raw"
 
             arm_depth = MuxSelect.Request()
-            arm_depth.topic = "/arm/D405/depth/image_rect_raw"
+            arm_depth.topic = "/arm/D405/aligned_depth_to_color/image_raw"
 
             self.color_mux_client.call_async(arm_color)
             self.depth_mux_client.call_async(arm_depth)
