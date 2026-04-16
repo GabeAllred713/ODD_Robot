@@ -47,6 +47,7 @@ class ODDARMLaunch(ctk.CTk):
     def add_to_log(self, text):
         self.combined_log.configure(state="normal")
         self.combined_log.insert("0.0", text)
+        self.combined_log.delete("1000.0", "end")
         self.combined_log.configure(state="disabled")
 
 
