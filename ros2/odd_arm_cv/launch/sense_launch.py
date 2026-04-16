@@ -15,7 +15,7 @@ def generate_launch_description():
             package='realsense2_camera',
             executable='realsense2_camera_node',
             # arguments=['--ros-args', '-r', '__node:=D435',  '-r',  '__ns:=/odd', '-p', 'device_type:=D435']
-            arguments=['--ros-args', '-r', '__node:=D435',  '-r',  '__ns:=/odd', '-p', 'serial_no:=_207222073869', '-r', '/odd/D435/color/image_raw:=/odd/D435/color/image_rect_raw']
+            arguments=['--ros-args', '-r', '__node:=D435',  '-r',  '__ns:=/odd', '-p', 'serial_no:=_207222073869', '-r', '/odd/D435/color/image_raw:=/odd/D435/color/image_rect_raw', '-p', 'pointcloud.enable:=true', '-p',  'align_depth.enable:=true', '-p', 'spatial_filter.enable:=true', '-p', 'hole_filling_filter.enable:=true', '-p', 'decimation_filter.enable:=true']
         ),
         Node(
             package='topic_tools',
@@ -29,7 +29,7 @@ def generate_launch_description():
             executable='mux',
             name='depth_image_mux',
             namespace='/odd_arm_cv',
-            arguments=['/odd_arm_cv/selected_depth_image', '/odd/D435/depth/image_rect_raw', '/arm/D405/aligned_depth_to_color/image_raw']
+            arguments=['/odd_arm_cv/selected_depth_image', '/odd/D435/aligned_depth_to_color/image_raw', '/arm/D405/aligned_depth_to_color/image_raw']
         ),
         Node(
             package='odd_arm_cv',

@@ -5,7 +5,7 @@ from std_msgs.msg import String
 from sensor_msgs.msg import Image
 from vision_msgs.msg import Detection2D, Detection2DArray
 from odd_package_interfaces.msg import RPM
-
+from math import floor
 
 class ODDDemo(Node):
     def __init__(self):
@@ -25,11 +25,12 @@ class ODDDemo(Node):
         self.detection_center = None
         self.depth = 10000
         self.error = 1000
+        self.lost_time = 0
 
     def update_depth_image(self, msg):
         if self.detection:
             depth_array = np.ndarray(shape=(msg.height, msg.width), dtype=np.uint16, buffer=msg.data)
-            self.depth = 0.001*depth_array[round(self.detection_center[1]), round(self.detection_center[0]*1.325)] # naively remap one resolution to the other
+            self.depth = 0.001*depth_array[floor(self.detection_center[1]), floor(self.detection_center[0])]
             #print(self.depth*0.001)
             #print(self.detection.results[0].hypothesis.score)
 
@@ -41,7 +42,7 @@ class ODDDemo(Node):
             self.detection = None
 
     def tick(self):
-        self.query_publisher.publish(String(data="[a blue backpack]"))
+        self.query_publisher.publish(String(data="[a green ball]"))
         
         self.rpms = [0.0, 0.0]
         
@@ -56,9 +57,7 @@ class ODDDemo(Node):
         self.rpms[0] = min(max(self.rpms[0], -50), 50)
         self.rpms[1] = min(max(self.rpms[1], -50), 50)
         
-        print(self.rpms)
-        print(self.state)
-        print(self.depth)
+        print(f"{self.state} | RPM: {self.rpms} | DEPTH: {self.depth} | LT: {self.lost_time}")
         
         self.rpm_publisher.publish(RPM(theta_dot_left=float(self.rpms[0]), theta_dot_right=float(self.rpms[1])))
 
@@ -68,21 +67,23 @@ class ODDDemo(Node):
             if abs(self.error) < 20:
                 self.state = 'approach'
         else:
-            self.rpms = [20, -20]
+            self.rpms = [15, -15]
             
     def tick_align(self):
-        self.error = self.detection_center[0] - 320
-        self.rpms = [self.rpms[0] + self.error*0.2, self.rpms[1] - self.error*0.2] # P control
-        
+        self.error = self.detection_center[0] - 320 # 320 is image center
+        self.rpms = [self.rpms[0] + self.error*0.03, self.rpms[1] - self.error*0.03] # P control
     
     def tick_approach(self):
-        self.rpms = [40, 40]
+        self.rpms = [30, 30]
         if self.detection:
+            self.lost_time = 0
             self.tick_align()
-            if self.depth < 0.1 and self.depth != 0:
+            if self.depth < 0.4 and self.depth != 0:
                 self.state = 'done'
-        #else:
-        #    self.state = 'search'
+        elif self.lost_time > 1.5:
+            self.state = 'search'
+        else:
+            self.lost_time += 1/30
 
 
 def main(args=None):
