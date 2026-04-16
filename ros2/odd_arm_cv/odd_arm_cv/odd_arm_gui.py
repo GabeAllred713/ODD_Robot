@@ -1,47 +1,22 @@
 import rclpy
 import customtkinter as ctk
 import PIL
+import numpy as np
 #from rosbags.image import message_to_cvimage
 #from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from topic_tools_interfaces.srv import MuxSelect
 
 
-# Following function was written by Gemini
-def ros2_image_to_pil(ros_image_msg):
-    """
-    Converts a ROS2 sensor_msgs/Image to a PIL Image using only Pillow.
-
-    Args:
-        ros_image_msg: The uncompressed ROS2 image message.
-
-    Returns:
-        PIL.Image: The converted Pillow image.
-    """
-    # Map ROS2 encodings to PIL (Image Mode, Raw Mode)
-    encoding_mapping = {
-        'mono8': ('L', 'L'),
-        '8UC1': ('L', 'L'),
-        '16UC1': ('I;16', 'I;16'),
-        'rgb8': ('RGB', 'RGB'),
-        'rgba8': ('RGBA', 'RGBA'),
-        'bgr8': ('RGB', 'BGR'),
-        'bgra8': ('RGBA', 'BGRA')
-    }
-
-    if ros_image_msg.encoding not in encoding_mapping:
-        raise ValueError(f"Unsupported encoding: {ros_image_msg.encoding}")
-
-    pil_mode, raw_mode = encoding_mapping[ros_image_msg.encoding]
-
-    # Image dimensions
-    size = (ros_image_msg.width, ros_image_msg.height)
-
-    # ROS2 message data is typically an array.array or sequence; convert to strict bytes
-    byte_data = bytes(ros_image_msg.data)
-
-    # Construct and return the PIL Image
-    return PIL.Image.frombytes(pil_mode, size, byte_data, 'raw', raw_mode)
+def ros_2_pil(msg):
+    if msg.encoding == "bgr8":
+        return PIL.Image.frombytes("RGB", (msg.width, msg.height), bytes(msg.data), 'raw', "BGR")
+    elif msg.encoding == "16UC1":
+        depth_array = np.ndarray(shape=(msg.height, msg.width), dtype=np.uint16, buffer=msg.data)
+        depth = ((depth_array.astype(np.float64) * 0.0001).clip(0, 1) * 255).astype(np.uint8)
+        return PIL.Image.fromarray(depth)
+    else:
+        raise ValueError(f"Unsupported encoding: {msg.encoding}")
 
 
 class ComputerVisionGUI(ctk.CTk):
@@ -77,10 +52,10 @@ class ComputerVisionGUI(ctk.CTk):
         self.depth_mux_client = self.node.create_client(MuxSelect, '/odd_arm_cv/depth_image_mux/select')
 
     def update_color_image(self, msg):
-        self.color_image.configure(light_image=ros2_image_to_pil(msg))
+        self.color_image.configure(light_image=ros_2_pil(msg))
 
     def update_depth_image(self, msg):
-        self.depth_image.configure(light_image=ros2_image_to_pil(msg))
+        self.depth_image.configure(light_image=ros_2_pil(msg))
 
     def camera_switched(self):
         if self.odd_camera_enabled.get():
@@ -88,7 +63,7 @@ class ComputerVisionGUI(ctk.CTk):
             odd_color.topic = "/odd/D435/color/image_rect_raw"
 
             odd_depth = MuxSelect.Request()
-            odd_depth.topic = "/odd/D435/depth/image_rect_raw"
+            odd_depth.topic = "/odd/D435/aligned_depth_to_color/image_raw"
 
             self.color_mux_client.call_async(odd_color)
             self.depth_mux_client.call_async(odd_depth)
