@@ -379,7 +379,7 @@ class ODDGUI(ctk.CTk):
 
 def main(args=None):
     rclpy.init(args=args)
-    app = ODDGUI(rclpy.create_node("odd_gui"))
+    app = ODDGUI(rclpy.create_node("odd_control_gui"))
     try:
         while app.running:
             app.update()

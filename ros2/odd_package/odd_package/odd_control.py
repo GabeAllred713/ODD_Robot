@@ -9,7 +9,7 @@ from serial import SerialException
 
 class ODDNode(Node):
     def __init__(self):
-        super().__init__('odd_node')
+        super().__init__('odd_control')
         self.running = True
         self.robot = ODDRobot(self.get_logger())
         self.try_connect()

@@ -108,7 +108,7 @@ class ComputerVisionGUI(ctk.CTk):
 
 def main(args=None):
     rclpy.init(args=args)
-    app = ComputerVisionGUI(rclpy.create_node("odd_arm_cv"))
+    app = ComputerVisionGUI(rclpy.create_node("odd_arm_cv_gui"))
     try:
         while app.running:
             rclpy.spin_once(app.node, timeout_sec=0.01)

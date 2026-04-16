@@ -29,6 +29,7 @@ setup(
         'console_scripts': [
             'control = odd_package.odd_control:main',
             'gui = odd_package.odd_gui:main',
+            'simple_demo = odd_package.demo:main',
         ],
     },
 )
