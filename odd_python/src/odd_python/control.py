@@ -91,12 +91,15 @@ class ODDRobot:
             self.rpm[1] = float(str_data[1])
             self.encoders[0] = int(str_data[2])
             self.encoders[1] = int(str_data[3])
-            self.orientation[0] = float(str_data[4])
-            self.orientation[1] = float(str_data[5])
-            self.orientation[2] = float(str_data[6])
-            self.acceleration[0] = float(str_data[7])
-            self.acceleration[1] = float(str_data[8])
-            self.acceleration[2] = float(str_data[9])
+            
+             # IMU is rotated differently from desired robot frame
+            self.orientation[0] = -float(str_data[6]) # X is -Z on IMU
+            self.orientation[1] = -float(str_data[5]) # Y is -Y
+            self.orientation[2] = -float(str_data[4]) # Z is -X
+            self.acceleration[0] = float(str_data[7]) # Pattern apparently does not repeat for accelerations
+            self.acceleration[1] = -float(str_data[8])
+            self.acceleration[2] = -float(str_data[9])
+            
             self.bump_sensors[0] = str_data[10] == "1"
             self.bump_sensors[1] = str_data[11] == "1"
             self.bump_sensors[2] = str_data[12] == "1"
