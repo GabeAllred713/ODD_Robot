@@ -17,8 +17,8 @@ class ODDRobot:
         self.logger = logger
         self.serial: Serial = None
         self.motor_commands: List[float] = [0.0, 0.0]  # L, R (rpm)
-        self.motor_left_pid: List[float] = [0.9, 0.02, 0.02]  # L (P I D)
-        self.motor_right_pid: List[float] = [0.35, 0.01, 0.02]  # R (P I D)
+        self.motor_left_pid: List[float] = [1.1, 0.02, 0.005]  # L (P I D)
+        self.motor_right_pid: List[float] = [1.1, 0.02, 0.005]  # R (P I D)
         self.encoders: List[int] = [0, 0]  # L, R (counts)
         self.rpm: List[float] = [0.0, 0.0]  # L, R (rpm)
         self.orientation: List[float] = [0.0, 0.0, 0.0]  # X Y Z (deg)

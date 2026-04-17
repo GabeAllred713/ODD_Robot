@@ -36,10 +36,10 @@ class MotorFrame(ctk.CTkFrame):
         self.ticks_right_label = ctk.CTkLabel(self, text="NO DATA ticks", font=font, text_color="blue")
         self.ticks_right_label.grid(row=3, column=2, padx=0, pady=0)
 
-        self.pid_left = PIDFrame(self, font=font, text_color="red", default=PID(p=0.9, i=0.02, d=0.02))
+        self.pid_left = PIDFrame(self, font=font, text_color="red", default=PID(p=1.1, i=0.02, d=0.005))
         self.pid_left.grid(row=4, column=0, padx=0, pady=0)
 
-        self.pid_right = PIDFrame(self, font=font, text_color="blue", default=PID(p=0.35, i=0.01, d=0.02))
+        self.pid_right = PIDFrame(self, font=font, text_color="blue", default=PID(p=1.1, i=0.02, d=0.005))
         self.pid_right.grid(row=4, column=2, padx=0, pady=0)
 
         self.pid_publish_enabled = ctk.BooleanVar(self)
@@ -258,7 +258,7 @@ class ODDGUI(ctk.CTk):
         self.shutdown_control_client = self.node.create_client(Trigger, 'shutdown_control')
 
         self.velocity = [0.0, 0.0]
-        self.vel_clamp = 82.0
+        self.vel_clamp = 110.0
         self.request_velocity = [0.0, 0.0]
         #self.accel_clamp = 30.0
         self.accel = 300.0
