@@ -8,6 +8,19 @@ import signal
 from pathlib import Path
 
 
+class WarningDialog(ctk.CTkToplevel):
+    def __init__(self, parent=None, title="", text=""):
+        super().__init__(parent)
+        self.geometry("230x100")
+        self.title(title)
+        
+        self.box = ctk.CTkLabel(self, text=text, wraplength=200, text_color="red")
+        self.box.pack(padx=20, pady=0)
+        
+        self.button = ctk.CTkButton(self, text="Ok", command=self.destroy)
+        self.button.pack(padx=20, pady=0)
+
+
 class ODDARMLaunch(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -49,6 +62,10 @@ class ODDARMLaunch(ctk.CTk):
         self.combined_log.insert("0.0", text)
         self.combined_log.delete("1000.0", "end")
         self.combined_log.configure(state="disabled")
+        
+        if "nano" in text and "out of memory" in text:
+            WarningDialog(self, title="No Memory", text="Not enough memory to open NanoOWL. Try closing programs and clearing cache with jtop.")
+            self._close_process("cv")
 
 
     def process_log(self):
@@ -60,7 +77,7 @@ class ODDARMLaunch(ctk.CTk):
             self.after(10, self.process_log)
     
     
-    def _process_log(self, name):
+    def _process_log(self, name, ):
         process = getattr(self, name + "_process")
         if process is None:
             return
