@@ -1,17 +1,17 @@
-#include <INA226.h>
+//#include <INA226.h>
 #include <Arduino.h>
 #include <math.h>
 #include <Wire.h>
 #include <GyverINA.h>
 #include "MotorControl.h"
-#include "wheelPID.h"s
+#include "WheelPID.h"
 #include "IMU.h" 
 #include "BumpSensors.h" 
- 
+
 INA226 ina;  // voltage reader object
 IMU_BNO055 bno055(55, 0x28);  // IMU Object 
 BumpSensors bumps(A3, A2, A1, A0); // Bump sensor object and pin assignment
-MotorControl motors(PWM1, INA1, INB1, PWM2, INA2, INB2); // Motor control object 
+//MotorControl motors(PWM1, INA1, INB1, PWM2, INA2, INB2); // Motor control object 
 // ================= PID gains =================
 WheelPIDGains gains1, gains2;  // PID control gains set up for left and right motor
 WheelPIDState state1, state2;  // Currnt State for PID control for left and right motor
@@ -26,10 +26,11 @@ const uint8_t PWM2 = D9;  // PWM2 (Right Motor)
 const uint8_t INA2 = D5;  // Enable A2
 const uint8_t INB2 = D4;  // Enable B2
  
-// ===== Encoder pins =====
+// ===== Encoder pins ===== // left motor
 const uint8_t ENC_A  = D2;  // Motor 2 encoder A
 const uint8_t ENC_B  = D3;  // Motor 2 encoder B
  
+// Right encoder 
 const uint8_t ENC2_A = D8;  // Motor 1 encoder A
 const uint8_t ENC2_B = D12; // Motor 1 encoder B
  
@@ -41,7 +42,7 @@ volatile long encoderCounts  = 0; // Left Motor encoder counts
 volatile long encoder2Counts = 0; // Right Motor encoder counts
 volatile uint8_t lastAB  = 0;     // Last enable, left motor
 volatile uint8_t lastAB2 = 0;     // Last enable, Right motor
-
+MotorControl motors(PWM1, INA1, INB1, PWM2, INA2, INB2);
 // Bump Sensors
 int b1 = 0;  // Front right
 int b2 = 0;  // Front Center
@@ -61,7 +62,7 @@ const int8_t quadTable[16] = {
 inline uint8_t readAB(uint8_t pinA, uint8_t pinB) {
   return (uint8_t)((digitalRead(pinA) << 1) | digitalRead(pinB));
 }
- 
+
 // ESP32 ISR attribute
 #if defined(ARDUINO_ARCH_ESP32)
   #define ISR_ATTR IRAM_ATTR
@@ -111,6 +112,8 @@ long lastC1 = 0, lastC2 = 0;
 float rpm1 = 0.0f, rpm2 = 0.0f;
 int pwmCmd1 = 0, pwmCmd2 = 0;
 
+int  imu_error = 0;
+int  ina_error = 0;
 // This function is what communicates to the Jetson, reads the serial input
 bool readSerialMessage() {
   float m1 = Serial.parseFloat();
@@ -174,10 +177,11 @@ void writeSerialMessage() {
 void setup() {
   Serial.begin(115200);
   bumps.begin();
-
+  Serial.setTimeout(50);
+  Wire.setClock(400000);
   // --- INA226 ---
   if (ina.begin());//Serial.println(F("INA226 connected!"));
-  else { Serial.println(F("INA226 not found!")); while (1); }
+  else { Serial.println(F("INA226 not found!")); ina_error = 1;}
  
   Serial.println(ina.getCalibration());
   ina.setSampleTime(INA226_VBUS,  INA226_CONV_2116US);
@@ -186,12 +190,12 @@ void setup() {
  
   // --- BNO055 ---
   if (bno055.begin(true)) {
-   // Serial.println(F("BNO055 connected!"));
+    Serial.println(F("BNO055 connected!"));
     bno055.setSamplePeriodMs(50); // 20 Hz update
     bno055.printSensorDetails();
   } else {
     Serial.println(F("BNO055 not found!"));
-    while (1);
+    imu_error = 1;
   }
  
   // --- PID gains ---
@@ -229,12 +233,20 @@ void setup() {
   lastPrintMs = millis();
 
   motors.begin();
+//  Wire.setClock(400000);
 }
  
 void loop() {
   // Update IMU (rate-limited internally)
   bno055.update();
   bumps.update();
+ // if (imu_error == 1) {
+ //   Serial.println("imu not working");
+ // } 
+
+ // if (ina_error == 1) {
+ //   Serial.println("ina not working");
+//  } 
 
   b1 = bumps.read(1);
   b2 = bumps.read(2);

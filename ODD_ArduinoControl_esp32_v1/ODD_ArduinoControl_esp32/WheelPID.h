@@ -50,7 +50,7 @@ inline int wheelPID_step(
   float k_t = 0.254f; // Nm
   float k_e = k_t;
   float R_a = 1.3f;   // ohms
-  float T_L = 0.0f;
+  float T_L = 0.1365f;
 
   // Guard dt / voltage
   if (dt <= 0.0f) return 0;
