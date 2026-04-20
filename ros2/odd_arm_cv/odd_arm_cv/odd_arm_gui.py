@@ -24,17 +24,17 @@ class ComputerVisionGUI(ctk.CTk):
     def __init__(self, node):
         super().__init__()
         self.node = node
-        self.geometry("430x900")
+        self.geometry("450x575")
         self.running = True
         self.protocol("WM_DELETE_WINDOW", self.on_close)
         self.title("ODD ARM COMPUTER VISION")
         # self.cv_bridge = CvBridge()
 
-        self.color_image = ctk.CTkImage(size=(400, 400), light_image=PIL.Image.new(mode="RGB", size=(300, 300), color="black"))
+        self.color_image = ctk.CTkImage(size=(424, 240), light_image=PIL.Image.new(mode="RGB", size=(300, 300), color="black"))
         self.color_image_label = ctk.CTkLabel(self, image=self.color_image, text="")
         self.color_image_label.grid(row=0, column=0, padx=15, pady=10)
 
-        self.depth_image = ctk.CTkImage(size=(400, 400), light_image=PIL.Image.new(mode="RGB", size=(300, 300), color="black"))
+        self.depth_image = ctk.CTkImage(size=(424, 240), light_image=PIL.Image.new(mode="RGB", size=(300, 300), color="black"))
         self.depth_image_label = ctk.CTkLabel(self, image=self.depth_image, text="")
         self.depth_image_label.grid(row=1, column=0, padx=15, pady=10)
 
