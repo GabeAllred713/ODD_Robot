@@ -76,7 +76,7 @@ class ODDRobot:
     
     def _read_data_line(self, line: str) -> None:
         if line[0] not in '1234567890-':
-            _read_msg_line(line)
+            self._read_msg_line(line)
             return
         
         str_data: List[str] = line.split(",")
