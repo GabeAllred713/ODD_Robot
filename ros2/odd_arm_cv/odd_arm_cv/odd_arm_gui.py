@@ -39,7 +39,7 @@ class ComputerVisionGUI(ctk.CTk):
         self.depth_image_label.grid(row=1, column=0, padx=15, pady=10)
 
         self.odd_camera_enabled = ctk.BooleanVar(self)
-        self.odd_camera_enabled.set("odd_control" in rclpy.node.get_node_names() or os.path.exists("/home/odd/"))
+        self.odd_camera_enabled.set("odd_control" in self.node.get_node_names() or os.path.exists("/home/odd/"))
         self.odd_camera_switch = ctk.CTkSwitch(self, text="ARM/ODD Camera", command=self.camera_switched,
                                                variable=self.odd_camera_enabled)
         self.odd_camera_switch.grid(row=2, column=0, padx=10, pady=10)
@@ -58,7 +58,7 @@ class ComputerVisionGUI(ctk.CTk):
         self.color_image.configure(light_image=ros_2_pil(msg))
 
     def update_depth_image(self, msg):
-        self.depth_image.configure(light_image=ros_2_pil(msg, 1000 if self.odd_camera_enabled.get() else 60))
+        self.depth_image.configure(light_image=ros_2_pil(msg, 10000 if self.odd_camera_enabled.get() else 60))
 
     def camera_switched(self):
         if self.odd_camera_enabled.get():
