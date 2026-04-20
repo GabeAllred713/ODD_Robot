@@ -58,7 +58,7 @@ class ComputerVisionGUI(ctk.CTk):
         self.color_image.configure(light_image=ros_2_pil(msg))
 
     def update_depth_image(self, msg):
-        self.depth_image.configure(light_image=ros_2_pil(msg, 10000 if self.odd_camera_enabled.get() else 60))
+        self.depth_image.configure(light_image=ros_2_pil(msg, 10000 if self.odd_camera_enabled.get() else 600)) # ARM range is about 60cm, measured working with camera UI
 
     def camera_switched(self):
         if self.odd_camera_enabled.get():
