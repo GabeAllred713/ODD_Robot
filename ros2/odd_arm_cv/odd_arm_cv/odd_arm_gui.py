@@ -1,6 +1,7 @@
 import rclpy
 import customtkinter as ctk
 import PIL
+import os
 import numpy as np
 #from rosbags.image import message_to_cvimage
 #from cv_bridge import CvBridge
@@ -38,7 +39,7 @@ class ComputerVisionGUI(ctk.CTk):
         self.depth_image_label.grid(row=1, column=0, padx=15, pady=10)
 
         self.odd_camera_enabled = ctk.BooleanVar(self)
-        self.odd_camera_enabled.set(True)
+        self.odd_camera_enabled.set("odd_control" in rclpy.node.get_node_names() or os.path.exists("/home/odd/"))
         self.odd_camera_switch = ctk.CTkSwitch(self, text="ARM/ODD Camera", command=self.camera_switched,
                                                variable=self.odd_camera_enabled)
         self.odd_camera_switch.grid(row=2, column=0, padx=10, pady=10)
@@ -50,6 +51,8 @@ class ComputerVisionGUI(ctk.CTk):
 
         self.color_mux_client = self.node.create_client(MuxSelect, '/nanoowl/input_image_mux/select')
         self.depth_mux_client = self.node.create_client(MuxSelect, '/odd_arm_cv/depth_image_mux/select')
+
+        self.camera_switched()
 
     def update_color_image(self, msg):
         self.color_image.configure(light_image=ros_2_pil(msg))
