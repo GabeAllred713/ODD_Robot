@@ -8,12 +8,12 @@ from sensor_msgs.msg import Image
 from topic_tools_interfaces.srv import MuxSelect
 
 
-def ros_2_pil(msg):
+def ros_2_pil(msg, depth_limit=1000):
     if msg.encoding == "bgr8":
         return PIL.Image.frombytes("RGB", (msg.width, msg.height), bytes(msg.data), 'raw', "BGR")
     elif msg.encoding == "16UC1":
         depth_array = np.ndarray(shape=(msg.height, msg.width), dtype=np.uint16, buffer=msg.data)
-        depth = ((depth_array.astype(np.float64) * 0.0001).clip(0, 1) * 255).astype(np.uint8)
+        depth = ((depth_array.astype(np.float64) / depth_limit).clip(0, 1) * 255).astype(np.uint8)
         return PIL.Image.fromarray(depth)
     else:
         raise ValueError(f"Unsupported encoding: {msg.encoding}")
@@ -55,7 +55,7 @@ class ComputerVisionGUI(ctk.CTk):
         self.color_image.configure(light_image=ros_2_pil(msg))
 
     def update_depth_image(self, msg):
-        self.depth_image.configure(light_image=ros_2_pil(msg))
+        self.depth_image.configure(light_image=ros_2_pil(msg, 1000 if self.odd_camera_enabled.get() else 60))
 
     def camera_switched(self):
         if self.odd_camera_enabled.get():
