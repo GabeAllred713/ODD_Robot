@@ -143,7 +143,7 @@ class ODDARMLaunch(ctk.CTk):
         elif name == "arm":
             self.arm_button.configure(text="ARM")
         elif name == "arm_rviz":
-            self.arm_button.configure(text="ARM RViz")
+            self.arm_rviz_button.configure(text="ARM RViz")
         elif name == "cv":
             self.cv_button.configure(text="Computer Vision")
             sp.run("docker kill --signal SIGTERM odd_arm_nanoowl", shell=True)  # Docker is misbehaving and I'm too tired to figure out a better way
