@@ -37,20 +37,24 @@ class ODDARMLaunch(ctk.CTk):
         
         self.arm_button = ctk.CTkButton(self, text="ARM", width=200, command=self.toggle_arm)
         self.arm_button.grid(row=1, column=0, padx=20, pady=5)
+
+        self.arm_rviz_button = ctk.CTkButton(self, text="ARM RViz", width=200, command=self.toggle_arm_rviz)
+        self.arm_rviz_button.grid(row=2, column=0, padx=20, pady=5)
         
         self.cv_button = ctk.CTkButton(self, text="Computer Vision", width=200, command=self.toggle_cv)
-        self.cv_button.grid(row=2, column=0, padx=20, pady=5)
+        self.cv_button.grid(row=3, column=0, padx=20, pady=5)
         
         self.log_label = ctk.CTkLabel(self, text="Console Log")
-        self.log_label.grid(row=3, column=0, padx=0, pady=0)
+        self.log_label.grid(row=4, column=0, padx=0, pady=0)
         
         self.combined_log = ctk.CTkTextbox(master=self, width=600-40)
-        self.combined_log.grid(row=4, column=0, sticky="nsew", padx=20, pady=0)
+        self.combined_log.grid(row=5, column=0, sticky="nsew", padx=20, pady=0)
         self.combined_log.configure(state="disabled")
         
         self.odd_process = None
         self.cv_process = None
         self.arm_process = None
+        self.arm_rviz_process = None
         
         self.running = True
         self.protocol("WM_DELETE_WINDOW", self.on_close)
@@ -71,6 +75,7 @@ class ODDARMLaunch(ctk.CTk):
     def process_log(self):
         self._process_log("odd")
         self._process_log("arm")
+        self._process_log("arm_rviz")
         self._process_log("cv")
         
         if self.running:
@@ -137,6 +142,8 @@ class ODDARMLaunch(ctk.CTk):
             self.odd_button.configure(text="ODD")
         elif name == "arm":
             self.arm_button.configure(text="ARM")
+        elif name == "arm_rviz":
+            self.arm_button.configure(text="ARM RViz")
         elif name == "cv":
             self.cv_button.configure(text="Computer Vision")
             sp.run("docker kill --signal SIGTERM odd_arm_nanoowl", shell=True)  # Docker is misbehaving and I'm too tired to figure out a better way
@@ -176,7 +183,13 @@ class ODDARMLaunch(ctk.CTk):
             self.arm_button.configure(text="Close ARM")
         else:
             self._close_process("arm")
-    
+
+    def toggle_arm_rviz(self):
+        if self.arm_rviz_process is None:
+            self._launch_process("arm_rviz")
+            self.arm_rviz_button.configure(text="Close ARM RViz")
+        else:
+            self._close_process("arm_rviz")
     
     def toggle_cv(self):
         if self.cv_process is None:
@@ -192,6 +205,7 @@ class ODDARMLaunch(ctk.CTk):
         self._close_process("odd")
         self._close_process("cv")
         self._close_process("arm")
+        self._close_process("arm_rviz")
         
         self.destroy()
 
